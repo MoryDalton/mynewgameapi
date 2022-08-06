@@ -1,4 +1,4 @@
-from django.shortcuts import render
+# from django.http import Http404, HttpResponseNotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication
@@ -21,30 +21,37 @@ class Myview(APIView):
 
     
     def post(self, request):
-        # mydata=request.data
-        # serializer = MySerializer(data=mydata)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response({"User": "added"}, status=status.HTTP_201_CREATED)
-        # return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
-        data = request.data     # data = {"number": number, "r": 1 or -1}
+        data = request.data
         serializer = MySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"User": "added"}, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
         
 
 class MyViewUser(APIView):
-    authentication_classes = [SessionAuthentication]
+    authentication_classes = []
     
+
+    
+    
+
     def get(self, request, id):
-        data = GameClass.objects.get(id=id)
+        try:
+            data = GameClass.objects.get(id=id)
+        except GameClass.DoesNotExist:
+            return Response({"User":"Not Found"}, status=status.HTTP_404_NOT_FOUND)
+            
+
         serializer = MySerializer(data)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def put(self, request, id):
-        instance = GameClass.objects.get(id=id)
+        try:
+            instance = GameClass.objects.get(id=id)
+        except GameClass.DoesNotExist:
+            return Response({"User":"Not Found"}, status=status.HTTP_404_NOT_FOUND)
+            
         serializer = MySerializer(instance=instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -54,8 +61,11 @@ class MyViewUser(APIView):
     
     
     def delete(self, request, id):
-        data = GameClass.objects.get(id=id)
+        try:
+            data = GameClass.objects.get(id=id)
+        except GameClass.DoesNotExist:
+            return Response({"User":"Not Found"}, status=status.HTTP_404_NOT_FOUND)
+
         data.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-        

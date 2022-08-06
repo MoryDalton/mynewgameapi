@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'game.apps.GameConfig',
+    'board_game.apps.BoardGameConfig',
     
     'rest_framework'
 ]
